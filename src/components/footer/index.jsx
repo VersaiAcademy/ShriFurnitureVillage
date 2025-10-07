@@ -30,13 +30,13 @@ export default function Footer() {
         <div className="links-copyright">
           <p>© 2025, Sri Furniture Village Powered by Shopify</p>
           <span>·</span>
-          <Link to="#">Refund policy</Link> {/* ✅ React Router Link */}
+          <Link to="policies/refund-policy">Refund policy</Link> {/* ✅ React Router Link */}
           <span>·</span>
-          <Link to="#">Privacy policy</Link>
+          <Link to="policies/privacy-policy">Privacy policy</Link>
           <span>·</span>
-          <Link to="#">Terms of service</Link>
+          <Link to="policies/terms-of-service">Terms of service</Link>
           <span>·</span>
-          <Link to="#">Contact information</Link>
+          <Link to="policies/contact-information">Contact information</Link>
         </div>
       </div>
     </footer>
