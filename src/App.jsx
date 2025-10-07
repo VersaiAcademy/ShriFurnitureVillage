@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Header from './components/header';
+import Footer from './components/footer';
 import Home from './pages/home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -22,6 +23,7 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/cart" element={<Cart />} />
             </Routes>
+            <Footer />
           </div>
         </Router>
       </CartProvider>
