@@ -1,7 +1,15 @@
+// src/components/header/index.jsx
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Search, User, ShoppingCart, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { cartCount } = useCart();
+  
   const [activeMenu, setActiveMenu] = useState(null);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -153,12 +161,12 @@ const Header = () => {
               
               {/* Logo - LEFT */}
               <div className="flex-shrink-0">
-                <a 
-                  href="/" 
+                <button 
+                  onClick={() => navigate('/')}
                   className="text-xl md:text-2xl font-normal text-gray-800 hover:text-gray-900 transition-colors"
                 >
                   Sri Furniture Village
-                </a>
+                </button>
               </div>
 
               {/* Navigation Menu - CENTER (Single horizontal line) */}
@@ -200,13 +208,18 @@ const Header = () => {
                             {activeSubmenu === section.title && (
                               <div className="bg-white">
                                 {section.items.map((item, itemIdx) => (
-                                  <a
+                                  <button
                                     key={itemIdx}
-                                    href={`/collections/${item.toLowerCase().replace(/\s+/g, '-').replace(/\+/g, '')}`}
-                                    className="block px-6 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                    onClick={() => {
+                                      const slug = item.toLowerCase().replace(/\s+/g, '-').replace(/\+/g, '');
+                                      navigate(`/collections/${slug}`);
+                                      setActiveMenu(null);
+                                      setActiveSubmenu(null);
+                                    }}
+                                    className="block w-full text-left px-6 py-2.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                                   >
                                     {item}
-                                  </a>
+                                  </button>
                                 ))}
                               </div>
                             )}
@@ -223,12 +236,45 @@ const Header = () => {
                 <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
                   <Search className="h-5 w-5" />
                 </button>
-                <a href="/login" className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                  <User className="h-5 w-5" />
-                </a>
-                <a href="/cart" className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                
+                {/* User Icon - Account or Login */}
+                {user ? (
+                  <button 
+                    onClick={() => navigate('/account')}
+                    className="p-2 text-gray-600 hover:text-gray-900 transition-colors relative group"
+                    title="My Account"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="absolute -bottom-8 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      My Account
+                    </span>
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate('/login')}
+                    className="p-2 text-gray-600 hover:text-gray-900 transition-colors relative group"
+                    title="Login"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="absolute -bottom-8 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      Login
+                    </span>
+                  </button>
+                )}
+                
+                {/* Cart with Badge */}
+                <button 
+                  onClick={() => navigate('/cart')}
+                  className="p-2 text-gray-600 hover:text-gray-900 transition-colors relative"
+                  title="Shopping Cart"
+                >
                   <ShoppingCart className="h-5 w-5" />
-                </a>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-black text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
+                </button>
                 
                 {/* Mobile Menu Button */}
                 <button 
@@ -261,6 +307,7 @@ const Header = () => {
         }`}
       >
         <div className="px-4 py-6">
+          {/* Mobile Menu Items */}
           {Object.keys(menuData).map((menu) => (
             <div key={menu} className="border-b border-gray-200 last:border-b-0">
               <button
@@ -290,17 +337,18 @@ const Header = () => {
                         <ul className="space-y-1 pl-2">
                           {section.items.map((item, itemIdx) => (
                             <li key={itemIdx}>
-                              <a
-                                href={`/collections/${item.toLowerCase().replace(/\s+/g, '-').replace(/\+/g, '')}`}
-                                className="block py-1 text-sm text-gray-600"
+                              <button
                                 onClick={() => {
+                                  const slug = item.toLowerCase().replace(/\s+/g, '-').replace(/\+/g, '');
+                                  navigate(`/collections/${slug}`);
                                   setIsMobileMenuOpen(false);
                                   setActiveMenu(null);
                                   setActiveMobileSubmenu({});
                                 }}
+                                className="block w-full text-left py-1 text-sm text-gray-600"
                               >
                                 {item}
-                              </a>
+                              </button>
                             </li>
                           ))}
                         </ul>
@@ -311,20 +359,35 @@ const Header = () => {
               )}
             </div>
           ))}
+          
+          {/* Mobile Auth Links */}
+          <div className="border-t border-gray-200 mt-4 pt-4">
+            {user ? (
+              <button
+                onClick={() => {
+                  navigate('/account');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center w-full py-3 text-sm text-gray-700 hover:text-gray-900"
+              >
+                <User className="h-5 w-5 mr-3" />
+                My Account
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  navigate('/login');
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center w-full py-3 text-sm text-gray-700 hover:text-gray-900"
+              >
+                <User className="h-5 w-5 mr-3" />
+                Login / Sign Up
+              </button>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Demo Content for Scrolling Test */}
-      {/* <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="space-y-4">
-          {[...Array(20)].map((_, i) => (
-            <div key={i} className="bg-gray-100 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Product {i + 1}</h3>
-              <p className="text-gray-600">This is sample content to demonstrate scrolling behavior with fixed header.</p>
-            </div>
-          ))}
-        </div>
-      </div> */}
     </>
   );
 };

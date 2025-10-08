@@ -33,20 +33,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      {/* <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-semibold text-gray-800">Sri Furniture Village</h1>
-        </div>
-      </div> */}
-
-      {/* Welcome Banner */}
-      {/* <div className="bg-gray-100 py-3 text-center">
-        <p className="text-sm text-gray-600">Welcome to our store</p>
-      </div> */}
-
+     
       {/* Login Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-center justify-center px-2 py-4">
         <div className="w-full max-w-md">
           <h2 className="text-3xl font-medium text-center mb-8 text-gray-900">Login</h2>
           
