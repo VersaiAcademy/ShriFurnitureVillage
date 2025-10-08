@@ -1,23 +1,21 @@
-// import React, { createContext, useContext, useEffect, useState } from "react";
-// import { auth } from '../firebase';
-// import { 
-//   createUserWithEmailAndPassword, 
-//   signInWithEmailAndPassword, 
-//   onAuthStateChanged,   // ✅ add this
-//   signOut               // ✅ add this
-// } from 'firebase/auth';
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../firebase/config"; // ✅ correct path
+import { 
+  onAuthStateChanged, 
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword 
+} from "firebase/auth";
+import { auth } from "../firebase/config"; // ✅ For config.js
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Listen to user login/logout
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -26,13 +24,60 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const logout = () => signOut(auth);
+  // ✅ Login function
+  const login = async (email, password) => {
+    try {
+      setError(null);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  // ✅ Signup function
+  const signup = async (email, password) => {
+    try {
+      setError(null);
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  // ✅ Logout function
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const value = {
+    user,
+    login,
+    signup,
+    logout,
+    loading,
+    error
+  };
 
   return (
-    <AuthContext.Provider value={{ user, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};

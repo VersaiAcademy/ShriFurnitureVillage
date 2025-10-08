@@ -1,3 +1,4 @@
+// src/pages/Signup.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -7,38 +8,120 @@ export default function Signup() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!email || !password || !confirmPassword) {
+      setError('Please fill all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     try {
       setError('');
+      setLoading(true);
       await signup(email, password);
-      navigate('/');
+      navigate('/'); // Redirect to home after successful signup
     } catch (err) {
-      setError(err.message);
+      setError('Failed to create account. ' + err.message);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Create Account</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Sign Up</button>
-      </form>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-semibold text-gray-800">Sri Furniture Village</h1>
+        </div>
+      </div>
+
+      {/* Welcome Banner */}
+      <div className="bg-gray-100 py-3 text-center">
+        <p className="text-sm text-gray-600">Welcome to our store</p>
+      </div>
+
+      {/* Signup Form */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <h2 className="text-3xl font-medium text-center mb-8 text-gray-900">Create Account</h2>
+          
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                required
+              />
+            </div>
+
+            <div>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                required
+              />
+            </div>
+
+            <div>
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+            >
+              {loading ? 'Creating Account...' : 'Sign up'}
+            </button>
+
+            <div className="text-center pt-2">
+              <span className="text-sm text-gray-600">Already have an account? </span>
+              <a 
+                href="/login" 
+                className="text-sm text-gray-700 hover:underline font-medium"
+              >
+                Login
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
